@@ -13,7 +13,7 @@ const random = require('./random');
 
     doStuff.then(() => workClosedSemaphore.waitPromise())
     .then(() => {
-      assert(count === 10);
+      assert(workClosedSemaphore.signalCount === 10);
     });
  */
 module.exports = class Semaphore {
@@ -47,7 +47,6 @@ module.exports = class Semaphore {
   reset() {
     this.signalCount = 0;
     this.name = random.name();
-    this.resolve = null;
     this.resetTimer();
 }
 

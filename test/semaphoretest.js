@@ -38,6 +38,20 @@ describe('semaphore test', () => {
     semaphore.signal();
   });
 
+  it('should reset and start again', (done) => {
+    const clock = sinon.useFakeTimers();
+    const semaphore = new Semaphore(2, 1000);
+    semaphore.waitPromise()
+      .then(() => {
+        clock.restore();
+        done();
+      });
+    semaphore.signal();
+    semaphore.reset();
+    semaphore.signal();
+    semaphore.signal();
+  });
+
 
   it('should timeout if not signalled', (done) => {
     const clock = sinon.useFakeTimers();
