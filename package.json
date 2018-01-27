@@ -1,0 +1,68 @@
+{
+  "name": "easysync",
+  "version": "1.0.0",
+  "description": "A lightweight synchronisation library",
+  "main": "app.js",
+  "dependencies": {
+    "winston": "^2.4.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "license-checker": "^16.0.0",
+    "mocha": "^5.0.0",
+    "proxyquire": "^1.8.0",
+    "sinon": "^4.2.1"
+  },
+  "scripts": {
+    "test": "mocha ./test/*test.js",
+    "lint": "eslint ./*.js"
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "env": {
+      "es6": true,
+      "node": true,
+      "mocha": true
+    },
+    "rules": {
+      "no-console": 0,
+      "space-before-function-paren": [
+        "error",
+        "never"
+      ],
+      "no-var": "error",
+      "prefer-const": [
+        "error",
+        {
+          "destructuring": "any",
+          "ignoreReadBeforeAssign": false
+        }
+      ],
+      "keyword-spacing": [
+        "error",
+        {
+          "after": true,
+          "before": true
+        }
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecoruh/easysync.git"
+  },
+  "keywords": [
+    "semaphore",
+    "mutex",
+    "sync"
+  ],
+  "author": "Ergun Çoruh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ecoruh/easysync/issues"
+  },
+  "homepage": "https://github.com/ecoruh/easysync#readme"
+}
