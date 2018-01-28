@@ -20,6 +20,7 @@ module.exports = class Semaphore {
   /**
    * @param {string} capacity - Promise resolves when this is reached
    * @param {integer} timeout - Promise resolves when this expires after first call to waitPromise()
+   *                            or last call to signal()
    */
   constructor(capacity, timeout = 60000) {
     this.capacity = capacity;
@@ -32,13 +33,35 @@ module.exports = class Semaphore {
   }
 
   /**
-   * Resets the timer to be set when waitPromise() is called next
+   * Stops the timer if started already
    */
-  resetTimer() {
+  stopTimer() {
     if (this.timeoutID) {
       clearTimeout(this.timeoutID);
       this.timeoutID = null;
     }
+  }
+
+  /**
+   * Start the timer if not started already
+   */
+  startTimer() {
+    if (!this.timeoutID) {
+      this.timeoutID = setTimeout(() => {
+        if (this.resolve) {
+          winston.info(`Semaphore ${this.name} - resolved by timeout`);
+          this.resolve();
+        }
+      }, this.timeout);  
+    }
+  }
+
+  /**
+   * Stops the current timer and restarts it
+   */
+  restartTimer() {
+    this.stopTimer();
+    this.startTimer();
   }
 
   /**
@@ -47,36 +70,29 @@ module.exports = class Semaphore {
   reset() {
     this.signalCount = 0;
     this.name = random.name();
-    this.resetTimer();
+    this.stopTimer();
 }
 
   /**
    * If this is the first call after the object is constructed or reset()
-   * called then a safety timer is wound for releasing the caller in case
-   * not sufficient calls to signal() is received during the timeout period.
-   * Returns a promise without promise being called thereby holding
-   * the caller in wait state until signalCount reaches the capacity
-   * or timeout occurs.
+   * was called then a safety timer is set for releasing the caller in case
+   * signal() is not called at all. Returns a promise without promise 
+   * being called thereby holding the caller in wait state until signalCount 
+   * reaches the capacity or timeout occurs.
    */
   waitPromise() {
     winston.info(`Semaphore ${this.name} - waiting..`);
-    if (!this.timeoutID) {
-      this.timeoutID = setTimeout(() => {
-        if (this.resolve) {
-          winston.info(`Semaphore ${this.name} - resolved by timeout`);
-          this.resolve();
-        }
-      }, this.timeout);
-    }
+    this.startTimer();
     return this.promise;
   }
 
   /**
-   * Increases the signalCount towards the capacity.
-   * If the capacity is reached the waiters are released
-   * by calling the promise resolve().
+   * Restarts the timer then increases the signalCount towards the capacity.
+   * If the capacity is reached the waiters are released by calling 
+   * the promise resolve(). 
    */
   signal() {
+    this.restartTimer();
     if (this.signalCount < this.capacity) {
       this.signalCount += 1;
     }
